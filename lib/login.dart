@@ -112,7 +112,7 @@ class LoginMain extends State<LoginState>{
                             textColor: Colors.black,
                             fontSize: 16.0
                           );
-                          Navigator.push(context, MaterialPageRoute(builder: (_)=> HomeState(sEmail,sPassword)));
+                          Navigator.push(context, MaterialPageRoute(builder: (_)=>HomeState(sEmail,sPassword)));
                         }
                       }, 
                       child: Text(

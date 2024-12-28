@@ -19,11 +19,10 @@ class HomeMain extends State<HomeState>{
   @override
   Widget build(BuildContext context) {
     // TODO: implement build
-    //throw UnimplementedError();
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: Colors.blue,
         title: Text("Home"),
+        backgroundColor: Colors.blue,
       ),
       backgroundColor: Colors.white,
       body: Container(
@@ -36,20 +35,27 @@ class HomeMain extends State<HomeState>{
                   Expanded(
                     flex: 1,
                     child: Container(
-                      color: Colors.blueGrey.shade100,
-                      child: Padding(
-                        padding: const EdgeInsets.all(10.0),
-                        child: Text("Email Id"),
+                      color: Colors.amber.shade100,
+                      child: Text(
+                        "Email Id : ", 
+                        style: TextStyle(
+                          fontSize: 20.0,
+                          color: Colors.black
+                        ),
                       ),
                     ),
                   ),
                   Expanded(
-                    flex: 1,
+                    flex: 2,
                     child: Container(
-                      color: Colors.blueGrey.shade200,
-                      child: Padding(
-                        padding: const EdgeInsets.all(10.0),
-                        child: Text(widget.sEmail, style: TextStyle(color: Colors.black,fontWeight: FontWeight.bold),),
+                      color: Colors.amber.shade200,
+                      child: Text(
+                        widget.sEmail, 
+                        style: TextStyle(
+                          fontSize: 20.0,
+                          color: Colors.black,
+                          fontWeight: FontWeight.bold
+                        ),
                       ),
                     ),
                   ),
@@ -63,20 +69,27 @@ class HomeMain extends State<HomeState>{
                   Expanded(
                     flex: 1,
                     child: Container(
-                      color: Colors.blueGrey.shade100,
-                      child: Padding(
-                        padding: const EdgeInsets.all(10.0),
-                        child: Text("Password"),
+                      color: Colors.amber.shade100,
+                      child: Text(
+                        "Password : ", 
+                        style: TextStyle(
+                          fontSize: 20.0,
+                          color: Colors.black
+                        ),
                       ),
                     ),
                   ),
                   Expanded(
-                    flex: 1,
+                    flex: 2,
                     child: Container(
-                      color: Colors.blueGrey.shade200,
-                      child: Padding(
-                        padding: const EdgeInsets.all(10.0),
-                        child: Text(widget.sPassword, style: TextStyle(color: Colors.black,fontWeight: FontWeight.bold),),
+                      color: Colors.amber.shade200,
+                      child: Text(
+                        widget.sPassword, 
+                        style: TextStyle(
+                          fontSize: 20.0,
+                          color: Colors.black,
+                          fontWeight: FontWeight.bold
+                        ),
                       ),
                     ),
                   ),
@@ -89,12 +102,16 @@ class HomeMain extends State<HomeState>{
                   flex: 1,
                   child: Row(
                     children: [
-                      Radio(value: 0, groupValue: iGroupValue, onChanged: (value){
-                        setState(() {
-                          setGender(value,"Male");                          
-                        });
-                      }),
-                      Text("Male")
+                      Radio(
+                        value: 0, 
+                        groupValue: iGroupValue, 
+                        onChanged: (value){
+                          setState(() {
+                            setGender(value,"Male");  
+                          });
+                        }
+                      ),
+                      Text("Male",style: TextStyle(color: Colors.black,fontSize: 15.0),),
                     ],
                   ),
                 ),
@@ -102,13 +119,16 @@ class HomeMain extends State<HomeState>{
                   flex: 1,
                   child: Row(
                     children: [
-                      Radio(value: 1, groupValue: iGroupValue, onChanged: (value){
-                        setState(() {
-                          setGender(value,"Female");  
-                        });
-                        
-                      }),
-                      Text("Female")
+                      Radio(
+                        value: 1, 
+                        groupValue: iGroupValue, 
+                        onChanged: (value){
+                          setState(() {
+                            setGender(value,"Female");  
+                          });
+                        }
+                      ),
+                      Text("Female",style: TextStyle(color: Colors.black,fontSize: 15.0),),
                     ],
                   ),
                 ),
@@ -116,19 +136,21 @@ class HomeMain extends State<HomeState>{
                   flex: 1,
                   child: Row(
                     children: [
-                      Radio(value: 2, groupValue: iGroupValue, onChanged: (value){
-                        setState(() {
-                          setGender(value,"Trangender");  
-                        });
-                        
-                      }),
-                      Text("Transgender")
+                      Radio(
+                        value: 2, 
+                        groupValue: iGroupValue, 
+                        onChanged: (value){
+                          setState(() {
+                            setGender(value,"Transgender");  
+                          });
+                        }
+                      ),
+                      Text("Transgender",style: TextStyle(color: Colors.black,fontSize: 15.0),),
                     ],
                   ),
                 ),
               ],
-            )
-
+            ),
           ],
         ),
       ),
