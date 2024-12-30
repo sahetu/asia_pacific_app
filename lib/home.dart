@@ -15,6 +15,11 @@ class HomeState extends StatefulWidget{
 class HomeMain extends State<HomeState>{
 
   int iGroupValue = 3;
+  bool androidCheck = false;
+  bool iosCheck = false;
+  bool flutterCheck = false;
+  bool reactCheck = false;
+  List<String> technologyArray = [];
 
   @override
   Widget build(BuildContext context) {
@@ -151,6 +156,87 @@ class HomeMain extends State<HomeState>{
                 ),
               ],
             ),
+            Row(
+              children: [
+                Checkbox(
+                  value: androidCheck, 
+                  onChanged: (value){
+                    setState(() {
+                      androidCheck = value!;
+                      technologyMethod(value,"Android");  
+                    });                  
+                  }
+                ),
+                Text(
+                  "Android",
+                  style: TextStyle(color: Colors.black,fontSize: 15.0),
+                )
+              ],
+            ),
+            Row(
+              children: [
+                Checkbox(
+                  value: iosCheck, 
+                  onChanged: (value){
+                    setState(() {
+                      iosCheck = value!;
+                      technologyMethod(value,"iOS");  
+                    });
+                  }
+                ),
+                Text(
+                  "iOS",
+                  style: TextStyle(color: Colors.black,fontSize: 15.0),
+                )
+              ],
+            ),
+            Row(
+              children: [
+                Checkbox(
+                  value: flutterCheck, 
+                  onChanged: (value){
+                    setState(() {
+                      flutterCheck = value!;
+                      technologyMethod(value,"Flutter");  
+                    });
+                  }
+                ),
+                Text(
+                  "Flutter",
+                  style: TextStyle(color: Colors.black,fontSize: 15.0),
+                )
+              ],
+            ),
+            Row(
+              children: [
+                Checkbox(
+                  value: reactCheck, 
+                  onChanged: (value){
+                    setState(() {
+                      reactCheck = value!;
+                      technologyMethod(value,"React Native");  
+                    });
+                  }
+                ),
+                Text(
+                  "React Native",
+                  style: TextStyle(color: Colors.black,fontSize: 15.0),
+                )
+              ],
+            ),
+            Container(
+              width: 200.0,
+              height: 40.0,
+              color: Colors.amber.shade100,
+              child: TextButton(
+                onPressed: (){
+                  if(technologyArray.length>0){
+                    print(technologyArray);
+                  }
+                }, 
+                child: Text("Show Technology")
+              )
+            )
           ],
         ),
       ),
@@ -168,6 +254,21 @@ class HomeMain extends State<HomeState>{
       textColor: Colors.black,
       fontSize: 16.0
     );
+  }
+
+  technologyMethod(isSelect,technology){
+    if(isSelect){
+      //print(technology);
+      technologyArray.add(technology);
+    }
+    else{
+      // for(int i=0;i<technologyArray.length;i++){
+      //   if(technologyArray[i] == technology){
+      //     technologyArray.remove(i);
+      //   }
+      // }
+      technologyArray.removeWhere((element) => element == technology);
+    }
   }
 
 }
