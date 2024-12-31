@@ -1,3 +1,4 @@
+import 'package:asia_pacific_app/custom_list.dart';
 import 'package:asia_pacific_app/home.dart';
 import 'package:asia_pacific_app/list.dart';
 import 'package:flutter/material.dart';
@@ -114,7 +115,7 @@ class LoginMain extends State<LoginState>{
                             fontSize: 16.0
                           );
                           //Navigator.push(context, MaterialPageRoute(builder: (_)=>HomeState(sEmail,sPassword)));
-                          Navigator.push(context, MaterialPageRoute(builder: (_)=>ListDemo()));
+                          Navigator.push(context, MaterialPageRoute(builder: (_)=>CustomList()));
                         }
                       }, 
                       child: Text(
