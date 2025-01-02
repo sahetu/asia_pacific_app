@@ -1,8 +1,9 @@
 import 'package:asia_pacific_app/login.dart';
+import 'package:asia_pacific_app/splash.dart';
 import 'package:flutter/material.dart';
 
 void main() {
-  runApp(LoginApp());
+  runApp(SplashDemo());
 }
 
 class MyApp extends StatelessWidget {

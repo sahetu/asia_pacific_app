@@ -53,8 +53,7 @@ class CustomListDesign extends StatelessWidget{
             child: Column(
               children: [
                 Row(
-                  children: [
-                    
+                  children: [                    
                     GestureDetector(
                       onTap: (){
                         Fluttertoast.showToast(
