@@ -62,4 +62,14 @@ class SqliteDatabaseHelper{
     return await db!.delete(tableName,where: '$columnContact = ?',whereArgs: [contact]);
   }
 
+  Future<List<Map<String,dynamic>>> getAllData() async{
+    Database? db = await instance.database;
+    return await db!.query(tableName);
+  }
+
+  Future<List<Map<String,dynamic>>> getSearchData(String sContact) async{
+    Database? db = await instance.database;
+    return await db!.query(tableName,where: '$columnContact = ?',whereArgs: [sContact]);
+  }
+
 }
