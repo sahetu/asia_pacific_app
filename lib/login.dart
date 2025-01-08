@@ -1,6 +1,7 @@
 import 'package:asia_pacific_app/custom_list.dart';
 import 'package:asia_pacific_app/home.dart';
 import 'package:asia_pacific_app/list.dart';
+import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 
@@ -101,21 +102,30 @@ class LoginMain extends State<LoginState>{
                     height: 40.0,
                     color: Colors.blueAccent.shade200,
                     child: TextButton(
-                      onPressed: (){
-                        if(formKey.currentState!.validate()){
-                          formKey.currentState!.save();
-                          print("Login Successfully ${sEmail} & ${sPassword}");
+                      onPressed: () async {
+                        var connectivity = await(Connectivity().checkConnectivity());
+                        if(connectivity == ConnectivityResult.wifi || connectivity == ConnectivityResult.mobile){
+                          if(formKey.currentState!.validate()){
+                            formKey.currentState!.save();
+                            print("Login Successfully ${sEmail} & ${sPassword}");
+                            Fluttertoast.showToast(
+                              msg: "Login Successfully",
+                              toastLength: Toast.LENGTH_SHORT,
+                              timeInSecForIosWeb: 2,
+                              gravity: ToastGravity.BOTTOM,
+                              backgroundColor: Colors.amber,
+                              textColor: Colors.black,
+                              fontSize: 16.0
+                            );
+                            //Navigator.push(context, MaterialPageRoute(builder: (_)=>HomeState(sEmail,sPassword)));
+                            Navigator.push(context, MaterialPageRoute(builder: (_)=>CustomList()));
+                          }
+                        }
+                        else{
                           Fluttertoast.showToast(
-                            msg: "Login Successfully",
-                            toastLength: Toast.LENGTH_SHORT,
-                            timeInSecForIosWeb: 2,
-                            gravity: ToastGravity.BOTTOM,
-                            backgroundColor: Colors.amber,
-                            textColor: Colors.black,
-                            fontSize: 16.0
-                          );
-                          //Navigator.push(context, MaterialPageRoute(builder: (_)=>HomeState(sEmail,sPassword)));
-                          Navigator.push(context, MaterialPageRoute(builder: (_)=>CustomList()));
+                          gravity: ToastGravity.BOTTOM,
+                          msg:'Internet/Wifi Disconnected', 
+                          toastLength: Toast.LENGTH_LONG);
                         }
                       }, 
                       child: Text(

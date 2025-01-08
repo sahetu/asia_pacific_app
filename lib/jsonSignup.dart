@@ -1,12 +1,20 @@
 import 'package:asia_pacific_app/sqliteDatabaseHelper.dart';
+import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 
-class SqliteListState extends StatelessWidget{
+class JsonSignupMain extends StatefulWidget{
+
+  @override
+  JsonSignupState createState() => JsonSignupState();
+
+}
+
+class JsonSignupState extends State<JsonSignupMain>{
 
   GlobalKey<FormState> formKey = GlobalKey();
-  late String sName,sEmail,sContact,sPassword;
-  var dbHelper = SqliteDatabaseHelper();
+  late String sName,sEmail,sContact,sPassword,sGender;
+  int iGroupValue = 3;
 
   @override
   Widget build(BuildContext context) {
@@ -15,7 +23,7 @@ class SqliteListState extends StatelessWidget{
     return MaterialApp(
       home: Scaffold(
         appBar: AppBar(
-          title: Text("Sqlite Database"),
+          title: Text("Json Signup"),
           backgroundColor: Colors.blue,
         ),
         body: Center(
@@ -131,96 +139,83 @@ class SqliteListState extends StatelessWidget{
                         },
                       ),
                     ),
+                    Row(
+                      children: [
+                        Expanded(
+                          flex: 1,
+                          child: Row(
+                            children: [
+                              Radio(
+                                value: 0, 
+                                groupValue: iGroupValue, 
+                                onChanged: (value){
+                                  setState(() {
+                                    setGender(value,"Male");  
+                                  });
+                                }
+                              ),
+                              Text("Male",style: TextStyle(color: Colors.black,fontSize: 15.0),),
+                            ],
+                          ),
+                        ),
+                        Expanded(
+                          flex: 1,
+                          child: Row(
+                            children: [
+                              Radio(
+                                value: 1, 
+                                groupValue: iGroupValue, 
+                                onChanged: (value){
+                                  setState(() {
+                                    setGender(value,"Female");  
+                                  });
+                                }
+                              ),
+                              Text("Female",style: TextStyle(color: Colors.black,fontSize: 15.0),),
+                            ],
+                          ),
+                        ),
+                        Expanded(
+                          flex: 1,
+                          child: Row(
+                            children: [
+                              Radio(
+                                value: 2, 
+                                groupValue: iGroupValue, 
+                                onChanged: (value){
+                                  setState(() {
+                                    setGender(value,"Transgender");  
+                                  });
+                                }
+                              ),
+                              Text("Transgender",style: TextStyle(color: Colors.black,fontSize: 15.0),),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
                     Container(
                       width: 100.0,
                       height: 40.0,
                       color: Colors.blueAccent.shade200,
                       child: TextButton(
-                        onPressed: (){
+                        onPressed: () async{
+                          var connectivity = await(Connectivity().checkConnectivity());
+                        if(connectivity == ConnectivityResult.wifi || connectivity == ConnectivityResult.mobile){
                           if(formKey.currentState!.validate()){
                             formKey.currentState!.save();
-                            insertData(sName,sEmail,sContact,sPassword);
+                            //insertData(sName,sEmail,sContact,sPassword);
                           }
+                        }
+                        else{
+                          Fluttertoast.showToast(
+                            gravity: ToastGravity.BOTTOM,
+                            msg:'Internet/Wifi Disconnected', 
+                            toastLength: Toast.LENGTH_LONG);
+                        }
                         }, 
                         child: Text(
-                          "Insert",
-                          style: TextStyle(
-                            color: Colors.white, 
-                            fontWeight: FontWeight.bold,
-                            fontSize: 20.0,
-                          ),
-                        ),
-                      ),
-                    ),
-                    Container(
-                      width: 100.0,
-                      height: 40.0,
-                      color: Colors.blueAccent.shade200,
-                      child: TextButton(
-                        onPressed: (){
-                          if(formKey.currentState!.validate()){
-                            formKey.currentState!.save();
-                            updateData(sName,sEmail,sContact,sPassword);
-                          }
-                        }, 
-                        child: Text(
-                          "Update",
-                          style: TextStyle(
-                            color: Colors.white, 
-                            fontWeight: FontWeight.bold,
-                            fontSize: 20.0,
-                          ),
-                        ),
-                      ),
-                    ),
-                    Container(
-                      width: 100.0,
-                      height: 40.0,
-                      color: Colors.blueAccent.shade200,
-                      child: TextButton(
-                        onPressed: (){
-                          formKey.currentState!.save();
-                          deleteData(sContact);
-                        }, 
-                        child: Text(
-                          "Delete",
-                          style: TextStyle(
-                            color: Colors.white, 
-                            fontWeight: FontWeight.bold,
-                            fontSize: 20.0,
-                          ),
-                        ),
-                      ),
-                    ),
-                    Container(
-                      width: 100.0,
-                      height: 40.0,
-                      color: Colors.blueAccent.shade200,
-                      child: TextButton(
-                        onPressed: (){
-                          showData();
-                        }, 
-                        child: Text(
-                          "All Data",
-                          style: TextStyle(
-                            color: Colors.white, 
-                            fontWeight: FontWeight.bold,
-                            fontSize: 20.0,
-                          ),
-                        ),
-                      ),
-                    ),
-                    Container(
-                      width: 100.0,
-                      height: 40.0,
-                      color: Colors.blueAccent.shade200,
-                      child: TextButton(
-                        onPressed: (){
-                          formKey.currentState!.save();
-                          searchData(sContact);
-                        }, 
-                        child: Text(
-                          "Search",
+                          "Signup",
                           style: TextStyle(
                             color: Colors.white, 
                             fontWeight: FontWeight.bold,
@@ -239,17 +234,11 @@ class SqliteListState extends StatelessWidget{
     );
   }
 
-  void insertData(String sName,String sEmail,String sContact, String sPassword) async{
-    Map<String,dynamic> rows = {
-      SqliteDatabaseHelper.columnName:sName,
-      SqliteDatabaseHelper.columnEmail:sEmail,
-      SqliteDatabaseHelper.columnContact:sContact,
-      SqliteDatabaseHelper.columnPassword:sPassword
-    };
-
-    final id  = await dbHelper.insert(rows);
+  void setGender(value,message){
+    iGroupValue = value;
+    sGender = message;
     Fluttertoast.showToast(
-      msg: "Insert Successfully",
+      msg: message,
       toastLength: Toast.LENGTH_SHORT,
       timeInSecForIosWeb: 2,
       gravity: ToastGravity.BOTTOM,
@@ -257,60 +246,6 @@ class SqliteListState extends StatelessWidget{
       textColor: Colors.black,
       fontSize: 16.0
     );
-    print("Last Inserted Id : $id");
-
-  }
-
-  void updateData(String sName,String sEmail,String sContact, String sPassword) async{
-    Map<String,dynamic> rows = {
-      SqliteDatabaseHelper.columnName:sName,
-      SqliteDatabaseHelper.columnEmail:sEmail,
-      SqliteDatabaseHelper.columnPassword:sPassword
-    };
-
-    final id  = await dbHelper.update(rows,sContact);
-    Fluttertoast.showToast(
-      msg: "Update Successfully",
-      toastLength: Toast.LENGTH_SHORT,
-      timeInSecForIosWeb: 2,
-      gravity: ToastGravity.BOTTOM,
-      backgroundColor: Colors.amber,
-      textColor: Colors.black,
-      fontSize: 16.0
-    );
-    print("Updated Id : $id");
-
-  }
-
-  void deleteData(String sContact) async{
-    final id  = await dbHelper.delete(sContact);
-    Fluttertoast.showToast(
-      msg: "Delete Successfully",
-      toastLength: Toast.LENGTH_SHORT,
-      timeInSecForIosWeb: 2,
-      gravity: ToastGravity.BOTTOM,
-      backgroundColor: Colors.amber,
-      textColor: Colors.black,
-      fontSize: 16.0
-    );
-    print("Deleted Id : $id");
-
-  }
-
-  void showData() async{
-    var listData = await dbHelper.getAllData();
-    for(var i=0;i<listData.length;i++){
-      print(listData[i]);
-      print(listData[i][1]);
-    }
-  }
-
-  void searchData(String sContact) async{
-    var listData = await dbHelper.getSearchData(sContact);
-    for(var i=0;i<listData.length;i++){
-      print(listData[i]);
-      print(listData[i][1]);
-    }
   }
 
 }
