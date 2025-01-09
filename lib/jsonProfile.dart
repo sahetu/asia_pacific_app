@@ -7,19 +7,55 @@ import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:http/http.dart' as http;
+import 'package:shared_preferences/shared_preferences.dart';
 
-class JsonSignupMain extends StatefulWidget{
+class JsonProfileMain extends StatefulWidget{
 
   @override
-  JsonSignupState createState() => JsonSignupState();
+  JsonProfileState createState() => JsonProfileState();
 
 }
 
-class JsonSignupState extends State<JsonSignupMain>{
+class JsonProfileState extends State<JsonProfileMain>{
 
   GlobalKey<FormState> formKey = GlobalKey();
-  late String sName,sEmail,sContact,sPassword,sGender;
+  late String sId,sName,sEmail,sContact,sPassword,sGender,sProfile;
   int iGroupValue = 3;
+  var nameController,emailController,contactController;
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    setData();
+  }
+
+  setData() async {
+    var sp = await SharedPreferences.getInstance();
+    setState(() {
+      sId = sp.getString(Siteconstant.USERID) ?? "";
+      sName = sp.getString(Siteconstant.NAME) ?? "";
+      sEmail = sp.getString(Siteconstant.EMAIL) ?? "";
+      sContact = sp.getString(Siteconstant.CONTACT) ?? "";
+      sGender = sp.getString(Siteconstant.GENDER) ?? "";
+      sProfile = sp.getString(Siteconstant.PROFILE) ?? "";
+
+      nameController = TextEditingController(text: sName);
+      emailController = TextEditingController(text: sEmail);
+      contactController = TextEditingController(text: sContact);
+
+      if(sGender == "Male"){
+        iGroupValue = 0;
+      }
+      else if(sGender == "Female"){
+        iGroupValue = 1;
+      }
+      else if(sGender == "Transgender"){
+        iGroupValue = 2;
+      }
+
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -28,7 +64,7 @@ class JsonSignupState extends State<JsonSignupMain>{
     return MaterialApp(
       home: Scaffold(
         appBar: AppBar(
-          title: Text("Json Signup"),
+          title: Text("Json Profile"),
           backgroundColor: Colors.blue,
         ),
         body: Center(
@@ -254,7 +290,9 @@ class JsonSignupState extends State<JsonSignupMain>{
   }
 
   insertData(String sName,String sEmail,String sContact, String sPassword,String sGender) async{
+    var sp = await SharedPreferences.getInstance();
     var map = {
+      "userid" : sId,
       "name" : sName,
       "email" : sEmail,
       "contact" : sContact,
@@ -262,7 +300,7 @@ class JsonSignupState extends State<JsonSignupMain>{
       "gender" : sGender
     };
 
-    var data = await http.post(Uri.parse(Siteconstant.BASE_URL+"signup.php"),body: map);
+    var data = await http.post(Uri.parse(Siteconstant.BASE_URL+"updateProfile.php"),body: map);
     if(data.statusCode == 200){
       var jsonData = jsonDecode(data.body);
       if(jsonData["status"] == true){
@@ -275,7 +313,14 @@ class JsonSignupState extends State<JsonSignupMain>{
           textColor: Colors.black,
           fontSize: 16.0
         );
-        Navigator.push(context, MaterialPageRoute(builder: (_)=>JsonLoginApp()));
+
+        sp.setString(Siteconstant.NAME, sName);
+        sp.setString(Siteconstant.EMAIL, sEmail);
+        sp.setString(Siteconstant.CONTACT, sContact);
+        sp.setString(Siteconstant.GENDER, sGender);
+        sp.setString(Siteconstant.PROFILE, sProfile);
+
+        Navigator.push(context, MaterialPageRoute(builder: (_)=>JsonProfileMain()));
       }
       else{
         Fluttertoast.showToast(

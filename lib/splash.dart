@@ -1,11 +1,15 @@
 import 'dart:async';
 
 import 'package:asia_pacific_app/bottom.dart';
+import 'package:asia_pacific_app/jsonLogin.dart';
+import 'package:asia_pacific_app/jsonProfile.dart';
 import 'package:asia_pacific_app/login.dart';
 import 'package:asia_pacific_app/navigationdemo.dart';
+import 'package:asia_pacific_app/siteConstant.dart';
 import 'package:asia_pacific_app/sqliteDemo.dart';
 import 'package:asia_pacific_app/tabDemo.dart';
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class SplashDemo extends StatelessWidget{
 
@@ -37,8 +41,15 @@ class SplashState extends State<SplashApp>{
   }
 
   Future<Timer> startTimerMethod() async {
+      var sp = await SharedPreferences.getInstance();
+      var sId = sp.getString(Siteconstant.USERID) ?? "";
       return new Timer(Duration(seconds: 3), (){
-        Navigator.push(context, MaterialPageRoute(builder: (_)=>SqliteListState()));
+        if(sId == ""){
+          Navigator.push(context, MaterialPageRoute(builder: (_)=>JsonLoginApp()));
+        }
+        else{
+          Navigator.push(context, MaterialPageRoute(builder: (_)=>JsonProfileMain()));
+        }
       });
   }
 
