@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:asia_pacific_app/jsonLogin.dart';
 import 'package:asia_pacific_app/siteConstant.dart';
@@ -7,6 +8,7 @@ import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:http/http.dart' as http;
+import 'package:image_picker/image_picker.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class JsonProfileMain extends StatefulWidget{
@@ -22,6 +24,7 @@ class JsonProfileState extends State<JsonProfileMain>{
   late String sId,sName,sEmail,sContact,sPassword,sGender,sProfile;
   int iGroupValue = 3;
   var nameController,emailController,contactController;
+  File? imageFile;
 
   @override
   void initState() {
@@ -75,6 +78,16 @@ class JsonProfileState extends State<JsonProfileMain>{
                   key: formKey,
                   child: Column(
                   children: [
+                    GestureDetector(
+                      onTap: () {
+                        //openGallery();
+                        showAlertDialog(context);
+                        //Fluttertoast.showToast(msg: "Image Clicked",toastLength: Toast.LENGTH_SHORT);
+                      },
+                      child: imageFile==null ? 
+                        Image.asset("assets/image/login.png",width: 100,height: 100,fit: BoxFit.cover):
+                      Image.file(imageFile!,width: 100,height: 100,fit: BoxFit.cover),
+                    ),
                     Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 10.0,vertical: 5.0),
                       child: TextFormField(
@@ -245,7 +258,7 @@ class JsonProfileState extends State<JsonProfileMain>{
                         if(connectivity == ConnectivityResult.wifi || connectivity == ConnectivityResult.mobile){
                           if(formKey.currentState!.validate()){
                             formKey.currentState!.save();
-                            insertData(sName,sEmail,sContact,sPassword,sGender);
+                            insertData(imageFile,sName,sEmail,sContact,sPassword,sGender);
                           }
                         }
                         else{
@@ -256,7 +269,7 @@ class JsonProfileState extends State<JsonProfileMain>{
                         }
                         }, 
                         child: Text(
-                          "Signup",
+                          "Update Profile",
                           style: TextStyle(
                             color: Colors.white, 
                             fontWeight: FontWeight.bold,
@@ -275,6 +288,58 @@ class JsonProfileState extends State<JsonProfileMain>{
     );
   }
 
+  showAlertDialog(BuildContext context) {
+
+    // set up the buttons
+    Widget cancelButton = TextButton(
+      child: Text("Camera"),
+      onPressed:  () {
+        openCamera();
+      },
+    );
+    Widget continueButton = TextButton(
+      child: Text("Gallery"),
+      onPressed:  () {
+        openGallery();
+      },
+    );
+
+    // set up the AlertDialog
+    AlertDialog alert = AlertDialog(
+      title: Text("Select Application"),
+      actions: [
+        cancelButton,
+        continueButton,
+      ],
+    );
+
+    // show the dialog
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return alert;
+      },
+    );
+  }
+
+  openGallery() async{
+    XFile? pickedFile = await ImagePicker().pickImage(source: ImageSource.gallery);
+    if(pickedFile!=null){
+      setState(() {
+          imageFile = File(pickedFile!.path);
+      });
+    }
+  }
+  
+  openCamera() async{
+    XFile? pickedFile = await ImagePicker().pickImage(source: ImageSource.camera);
+    if(pickedFile!=null){
+      setState(() {
+          imageFile = File(pickedFile!.path);
+      });
+    }
+  }
+
   void setGender(value,message){
     iGroupValue = value;
     sGender = message;
@@ -289,7 +354,7 @@ class JsonProfileState extends State<JsonProfileMain>{
     );
   }
 
-  insertData(String sName,String sEmail,String sContact, String sPassword,String sGender) async{
+  insertData(File? imageFile,String sName,String sEmail,String sContact, String sPassword,String sGender) async{
     var sp = await SharedPreferences.getInstance();
     var map = {
       "userid" : sId,
@@ -300,31 +365,51 @@ class JsonProfileState extends State<JsonProfileMain>{
       "gender" : sGender
     };
 
-    var data = await http.post(Uri.parse(Siteconstant.BASE_URL+"updateProfile.php"),body: map);
-    if(data.statusCode == 200){
-      var jsonData = jsonDecode(data.body);
-      if(jsonData["status"] == true){
-        Fluttertoast.showToast(
-          msg: jsonData["messsage"],
-          toastLength: Toast.LENGTH_SHORT,
-          timeInSecForIosWeb: 2,
-          gravity: ToastGravity.BOTTOM,
-          backgroundColor: Colors.amber,
-          textColor: Colors.black,
-          fontSize: 16.0
-        );
+    if(imageFile!=null){
+      var length = await imageFile.length();
+      Map<String,String> headerData = {"Accept":"application/json"};
+      http.MultipartRequest request = http.MultipartRequest("POST", Uri.parse(Siteconstant.BASE_URL+"updateProfileImage.php"))
+      ..headers.addAll(headerData)
+      ..fields.addAll(map)
+      ..files.add(http.MultipartFile('file',imageFile.openRead(),length,filename: '$sName.jpg'));
 
-        sp.setString(Siteconstant.NAME, sName);
-        sp.setString(Siteconstant.EMAIL, sEmail);
-        sp.setString(Siteconstant.CONTACT, sContact);
-        sp.setString(Siteconstant.GENDER, sGender);
-        sp.setString(Siteconstant.PROFILE, sProfile);
+      var data = await http.Response.fromStream(await request.send());
+      if(data.statusCode == 200){
+        var jsonData = jsonDecode(data.body);
+        if(jsonData["status"] == true){
+          Fluttertoast.showToast(
+            msg: jsonData["messsage"],
+            toastLength: Toast.LENGTH_SHORT,
+            timeInSecForIosWeb: 2,
+            gravity: ToastGravity.BOTTOM,
+            backgroundColor: Colors.amber,
+            textColor: Colors.black,
+            fontSize: 16.0
+          );
 
-        Navigator.push(context, MaterialPageRoute(builder: (_)=>JsonProfileMain()));
+          sp.setString(Siteconstant.NAME, sName);
+          sp.setString(Siteconstant.EMAIL, sEmail);
+          sp.setString(Siteconstant.CONTACT, sContact);
+          sp.setString(Siteconstant.GENDER, sGender);
+          sp.setString(Siteconstant.PROFILE, sProfile);
+
+          Navigator.push(context, MaterialPageRoute(builder: (_)=>JsonProfileMain()));
+        }
+        else{
+          Fluttertoast.showToast(
+            msg: jsonData["messsage"],
+            toastLength: Toast.LENGTH_SHORT,
+            timeInSecForIosWeb: 2,
+            gravity: ToastGravity.BOTTOM,
+            backgroundColor: Colors.amber,
+            textColor: Colors.black,
+            fontSize: 16.0
+          );
+        }
       }
       else{
         Fluttertoast.showToast(
-          msg: jsonData["messsage"],
+          msg: "Server Error Code ${data.statusCode}",
           toastLength: Toast.LENGTH_SHORT,
           timeInSecForIosWeb: 2,
           gravity: ToastGravity.BOTTOM,
@@ -335,15 +420,51 @@ class JsonProfileState extends State<JsonProfileMain>{
       }
     }
     else{
-      Fluttertoast.showToast(
-        msg: "Server Error Code ${data.statusCode}",
-        toastLength: Toast.LENGTH_SHORT,
-        timeInSecForIosWeb: 2,
-        gravity: ToastGravity.BOTTOM,
-        backgroundColor: Colors.amber,
-        textColor: Colors.black,
-        fontSize: 16.0
-      );
+      var data = await http.post(Uri.parse(Siteconstant.BASE_URL+"updateProfile.php"),body: map);
+      if(data.statusCode == 200){
+        var jsonData = jsonDecode(data.body);
+        if(jsonData["status"] == true){
+          Fluttertoast.showToast(
+            msg: jsonData["messsage"],
+            toastLength: Toast.LENGTH_SHORT,
+            timeInSecForIosWeb: 2,
+            gravity: ToastGravity.BOTTOM,
+            backgroundColor: Colors.amber,
+            textColor: Colors.black,
+            fontSize: 16.0
+          );
+
+          sp.setString(Siteconstant.NAME, sName);
+          sp.setString(Siteconstant.EMAIL, sEmail);
+          sp.setString(Siteconstant.CONTACT, sContact);
+          sp.setString(Siteconstant.GENDER, sGender);
+          sp.setString(Siteconstant.PROFILE, sProfile);
+
+          Navigator.push(context, MaterialPageRoute(builder: (_)=>JsonProfileMain()));
+        }
+        else{
+          Fluttertoast.showToast(
+            msg: jsonData["messsage"],
+            toastLength: Toast.LENGTH_SHORT,
+            timeInSecForIosWeb: 2,
+            gravity: ToastGravity.BOTTOM,
+            backgroundColor: Colors.amber,
+            textColor: Colors.black,
+            fontSize: 16.0
+          );
+        }
+      }
+      else{
+        Fluttertoast.showToast(
+          msg: "Server Error Code ${data.statusCode}",
+          toastLength: Toast.LENGTH_SHORT,
+          timeInSecForIosWeb: 2,
+          gravity: ToastGravity.BOTTOM,
+          backgroundColor: Colors.amber,
+          textColor: Colors.black,
+          fontSize: 16.0
+        );
+      }
     }
 
   }
